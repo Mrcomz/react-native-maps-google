@@ -24,5 +24,6 @@
 @property (nonatomic, copy) NSArray *markers;
 
 - (void) moveMarkerUpAndDown:(NSDictionary *)marker toPositionY:(NSNumber*)valueY  animationSpeed: (NSNumber*)animationSpeed;
+- (void) showAllMarkers:(NSArray*)markers;
 
 @end

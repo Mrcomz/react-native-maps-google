@@ -346,4 +346,43 @@
     });
 }
 
+/**
+ * Show all markers on map
+ *
+ * @return void
+ */
+- (void) showAllMarkers:(NSArray*)markers
+{
+    BOOL isAllowScrollGestures = YES;
+    self.allowScrollGesturesDuringRotateOrZoom = &isAllowScrollGestures;
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        GMSMutablePath *path = [[GMSMutablePath alloc] init];
+        GMSCoordinateBounds *bounds = [[GMSCoordinateBounds alloc] init];
+        for (NSDictionary* marker in markers) {
+            NSString *publicId = marker[@"publicId"];
+            CLLocationDegrees latitude = ((NSNumber*)marker[@"latitude"]).doubleValue;
+            CLLocationDegrees longitude = ((NSNumber*)marker[@"longitude"]).doubleValue;
+            
+            GMSMarker* mapMarker = [GMSMarker markerWithPosition:CLLocationCoordinate2DMake(latitude, longitude)];
+            
+            if (marker[@"icon"]) {
+                mapMarker.icon = [self getMarkerImage:marker];
+            } else if (marker[@"hexColor"]) {
+                UIColor *color = [self getMarkerColor:marker];
+                mapMarker.icon = [GMSMarker markerImageWithColor:color];
+            }
+            bounds = [bounds includingCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+            mapMarker.userData = publicId;
+            mapMarker.map = self;
+            [path addCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
+        }
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:0.7];
+        GMSCameraUpdate *newCamera = [GMSCameraUpdate fitBounds:bounds withEdgeInsets:UIEdgeInsetsMake(60,60,360,60)];
+        [self animateWithCameraUpdate:newCamera];
+        [CATransaction commit];
+    });
+}
+
 @end
