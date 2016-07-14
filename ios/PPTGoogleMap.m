@@ -311,42 +311,6 @@
 }
 
 /**
- * Move camere position up / down
- *
- * @return void
- */
-- (void) moveMarkerUpAndDown:(NSDictionary *)marker toPositionY:(NSNumber*)valueY animationSpeed:(NSNumber*)animationSpeed
-{
-    CLLocationDegrees latitude = ((NSNumber*)marker[@"latitude"]).doubleValue;
-    CLLocationDegrees longitude = ((NSNumber*)marker[@"longitude"]).doubleValue;
-    CLLocationCoordinate2D orginal = CLLocationCoordinate2DMake(latitude, longitude);
-    CGPoint point = self.center;
-    
-    dispatch_barrier_async(dispatch_get_main_queue(), ^{
-        CLLocationCoordinate2D mapCenter = [self.projection coordinateForPoint:point];
-        CLLocationCoordinate2D newCoordinate = [self.projection coordinateForPoint:CGPointMake([UIScreen mainScreen].bounds.size.width / 2, [valueY floatValue])];
-        CLLocation *source = [[CLLocation alloc]initWithLatitude:mapCenter.latitude longitude:mapCenter.longitude];
-        CLLocation *dest = [[CLLocation alloc]initWithLatitude:newCoordinate.latitude longitude:newCoordinate.longitude];
-        
-        CLLocationDistance dist = [source distanceFromLocation:dest];
-        
-        if ([valueY floatValue] < [UIScreen mainScreen].bounds.size.height / 2 )
-        {
-            dist *= -1;
-        }
-        float speed_ = 0;
-        if(animationSpeed) {
-            speed_ = [animationSpeed floatValue];
-        }
-        
-        [CATransaction begin];
-        [CATransaction setAnimationDuration:speed_];
-        [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(orginal, dist, 0) zoom:16]];
-        [CATransaction commit];
-    });
-}
-
-/**
  * Show all markers on map
  *
  * @return void
@@ -383,6 +347,68 @@
         [self animateWithCameraUpdate:newCamera];
         [CATransaction commit];
     });
+}
+
+- (void) moveMarkerUpAndDown:(NSDictionary *)marker toPositionY:(NSNumber*)valueY animationSpeed:(NSNumber*)animationSpeed
+{
+    CLLocationDegrees latitude = ((NSNumber*)marker[@"latitude"]).doubleValue;
+    CLLocationDegrees longitude = ((NSNumber*)marker[@"longitude"]).doubleValue;
+    CLLocationCoordinate2D orginal = CLLocationCoordinate2DMake(latitude, longitude);
+    
+    float defaultZoom = 15.0;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        
+        float speed_ = 0;
+        if(animationSpeed) {
+            speed_ = [animationSpeed floatValue];
+        }
+        
+        float dist = 0;
+        
+        if ([valueY floatValue] < [UIScreen mainScreen].bounds.size.height / 2 )
+        {
+            dist = -560;
+        }
+        
+        if (ceil(self.camera.zoom) != defaultZoom)
+        {
+            [CATransaction begin];
+            [CATransaction setAnimationDuration:speed_];
+            [CATransaction setCompletionBlock:^{
+                [self forcusMarker:orginal valueY:[valueY floatValue] speed:speed_/2];
+            }];
+            [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(orginal, dist, 0) zoom:defaultZoom]];
+            [CATransaction commit];
+        }
+        else {
+            [self forcusMarker:orginal valueY:[valueY floatValue] speed:speed_];
+        }
+        
+        
+    });
+}
+
+- (void) forcusMarker:(CLLocationCoordinate2D)orginal valueY:(float)valueY  speed:(float)speed
+{
+    float defaultZoom = 15.0;
+    CGPoint point = self.center;
+    CLLocationCoordinate2D mapCenter = [self.projection coordinateForPoint:point];
+    CLLocationCoordinate2D newCoordinate = [self.projection coordinateForPoint:CGPointMake([UIScreen mainScreen].bounds.size.width / 2, valueY)];
+    CLLocation *source = [[CLLocation alloc]initWithLatitude:mapCenter.latitude longitude:mapCenter.longitude];
+    CLLocation *dest = [[CLLocation alloc]initWithLatitude:newCoordinate.latitude longitude:newCoordinate.longitude];
+    
+    CLLocationDistance dist = [source distanceFromLocation:dest];
+    
+    if (valueY < [UIScreen mainScreen].bounds.size.height / 2 )
+    {
+        dist *= -1;
+    }
+    
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:speed];
+    [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(orginal, dist, 0) zoom:defaultZoom]];
+    [CATransaction commit];
 }
 
 @end
