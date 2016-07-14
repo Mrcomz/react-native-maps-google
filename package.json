@@ -73,7 +73,7 @@
     }
   ],
   "dependencies": {},
-  "description": "Google Maps UI component for React Native",
+  "description": "Google Maps UI component for React Native http://plan.xyz",
   "devDependencies": {},
   "gitHead": "3df40ff632a4efe8b3a17095fe3af6bb8890f558",
   "homepage": "https://github.com/planxyz/react-native-maps-google#readme",
@@ -82,8 +82,7 @@
     "plan xyz",
     "google maps",
     "maps",
-    "react native",
-    "pod point"
+    "react native"
   ],
   "license": "MIT",
   "main": "PPTGoogleMap",
@@ -103,5 +102,5 @@
     "preversion, version": "./sdk.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.1.1"
+  "version": "1.1.2"
 }
