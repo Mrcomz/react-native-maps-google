@@ -72,14 +72,18 @@
         CLLocationDegrees longitude = ((NSNumber*)cameraPosition[@"longitude"]).doubleValue;
         CLLocationCoordinate2D origin = CLLocationCoordinate2DMake(latitude, longitude);
         
-        [CATransaction begin];
-        [CATransaction setAnimationDuration:.4];
-        //GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:latitude
-        //                                                        longitude:longitude
-        //                                                             zoom:zoom];
-        //[self animateToCameraPosition:camera];
+        float dist = 0;
         
-        [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(origin,self.cameraMove.doubleValue, self.cameraDirection.doubleValue) zoom:zoom]]; //
+        if (self.cameraMove.floatValue < [UIScreen mainScreen].bounds.size.height / 2 )
+        {
+            dist = -560;
+        }
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:0.8];
+        [CATransaction setCompletionBlock:^{
+            [self forcusMarker:origin valueY:[self.cameraMove floatValue] speed:.4];
+        }];
+        [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(origin, dist, 0) zoom:zoom]];
         [CATransaction commit];
     }
 }
