@@ -22,9 +22,9 @@ RCT_EXPORT_METHOD (setApiKey: (NSString *)apiKey)
     [PPTGoogleMapProvider provideAPIKey:apiKey];
 }
 
-RCT_EXPORT_METHOD(showAllMarkers:(NSArray*)markers)
+RCT_EXPORT_METHOD (showAllMarkers:(NSArray*)markers  bottomHeight:(float)bottomHeight)
 {
-    [map showAllMarkers:markers];
+    [map showAllMarkers:markers bottomHeight:bottomHeight];
 }
 
 /**

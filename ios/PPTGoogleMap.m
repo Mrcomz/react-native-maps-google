@@ -72,6 +72,12 @@
         CLLocationDegrees longitude = ((NSNumber*)cameraPosition[@"longitude"]).doubleValue;
         CLLocationCoordinate2D origin = CLLocationCoordinate2DMake(latitude, longitude);
         
+        /*
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:.4];
+        [self animateWithCameraUpdate:[GMSCameraUpdate setTarget:GMSGeometryOffset(origin,self.cameraMove.doubleValue, self.cameraDirection.doubleValue) zoom:zoom]]; //
+        [CATransaction commit];
+         */
         float dist = 0;
         
         if (self.cameraMove.floatValue < [UIScreen mainScreen].bounds.size.height / 2 )
@@ -319,10 +325,13 @@
  *
  * @return void
  */
-- (void) showAllMarkers:(NSArray*)markers
+- (void) showAllMarkers:(NSArray*)markers bottomHeight:(float)bottomHeight
 {
+    
     BOOL isAllowScrollGestures = YES;
     self.allowScrollGesturesDuringRotateOrZoom = &isAllowScrollGestures;
+    
+    UIEdgeInsets insetEdge = UIEdgeInsetsMake(35,35,bottomHeight + 10,35);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         GMSMutablePath *path = [[GMSMutablePath alloc] init];
@@ -346,8 +355,8 @@
             [path addCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
         }
         [CATransaction begin];
-        [CATransaction setAnimationDuration:0.7];
-        GMSCameraUpdate *newCamera = [GMSCameraUpdate fitBounds:bounds withEdgeInsets:UIEdgeInsetsMake(60,60,360,60)];
+        [CATransaction setAnimationDuration:0.3];
+        GMSCameraUpdate *newCamera = [GMSCameraUpdate fitBounds:bounds withEdgeInsets:insetEdge];
         [self animateWithCameraUpdate:newCamera];
         [CATransaction commit];
     });
